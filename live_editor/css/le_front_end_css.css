@@ -1,0 +1,59 @@
+#le_admin_bar {
+width:100%;
+height:38px;
+position:absolute;
+bottom:0;
+left:0;
+background-image:url(../images/le_admin_bar_bg.png);
+background-repeat:repeat-x;
+}
+
+#le_admin_bar_wrapper {
+width:100%;
+height:32px;
+margin:6px 0 0;
+}
+
+#le_meta_tags {
+width:94px;
+height:32px;
+border:0;
+float:left;
+background-image:url(../images/le_meta_tags.png);
+background-color:transparent;
+}
+
+#LeSubmit {
+width:90px;
+height:32px;
+border:0;
+float:right;
+background-image:url(../images/le_save_button.png);
+}
+
+.le_meta_tags_container {
+display:none;
+width:215px;
+text-align:left;
+height:auto;
+position:absolute;
+bottom:32px;
+left:0;
+background-color:#FFF;
+border:1px solid gray;
+padding:10px;
+}
+
+.le_meta_tags_close {
+text-decoration:underline;
+cursor:pointer;
+}
+
+.le_success {
+display:none;
+width:100%;
+background-color:#99CD00;
+color:#FFF;
+font-size:16px;
+padding:3px;
+}
