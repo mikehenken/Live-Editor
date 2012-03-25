@@ -24,32 +24,37 @@ register_plugin(
 
 # hooks
 
-//Filter Out The Content (Checks To See If Page Is Protected Or Not)
+//Show aloha wrapper and check submitted changes
+
 add_action('content-top','le_before_content');
 
-//Filter Out The Content (Checks To See If Page Is Protected Or Not)
+//End aloha wrapper
 add_action('content-bottom','le_after_content');
 
-//Filter Out The Content (Checks To See If Page Is Protected Or Not)
+//Display admin bar
 add_action('theme-footer','le_admin_bar');
 
 //Initialize Javascript & CSS
 add_action('theme-header','le_show_aloha');
 
-//Define Feul Settings File
+//Define Live Editor Settings File
 define('LeFile', GSDATAOTHERPATH  . 'live_editor.xml');
 
 /** 
-* Proccess Admin User Login Settings and various contional statements related to this plugin.
+* Admin settings - Not currently being used 
 *
-* @return string content or page protected message
+* @return void
 */ 
-
 function live_editor_admin()
 {
 
 }
 
+/** 
+* Initialize Javascript & CSS - Submit data via ajax
+*
+* @return void
+*/ 
 function le_show_aloha()
 {
 	if(get_cookie('GS_ADMIN_USERNAME') != "")
@@ -170,12 +175,13 @@ function le_show_aloha()
 		<?php
 	}
 }
-function createCdata($text)
-{
-	$ct = $appendToNode->ownerDocument->createCDATASection($text);
-    $appendToNode->appendChild($ct);
-}
 
+
+/** 
+* Admin Display aloha wrapper and check for submitted changes
+*
+* @return void
+*/ 
 function le_before_content()
 {
 	if(get_cookie('GS_ADMIN_USERNAME') != "")
@@ -206,6 +212,11 @@ function le_before_content()
 	}
 }
 
+/** 
+* Close Aloha Wrapper
+*
+* @return void
+*/ 
 function le_after_content()
 {
 	if(get_cookie('GS_ADMIN_USERNAME') != "")
@@ -214,11 +225,21 @@ function le_after_content()
 	}
 }
 
+/** 
+* Process Admin Settings - Not currently used
+*
+* @return void
+*/ 
 function le_process_page()
 {
 
 }
 
+/** 
+* Display admin bar 
+*
+* @return void
+*/ 
 function le_admin_bar()
 {
 	$pageslug = return_page_slug();
