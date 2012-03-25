@@ -23,6 +23,24 @@ background-image:url(../images/le_meta_tags.png);
 background-color:transparent;
 }
 
+#le_title_tag {
+width:94px;
+height:32px;
+border:0;
+float:left;
+background-image:url(../images/le_page_title.png);
+background-color:transparent;
+}
+
+#le_page_options {
+width:112px;
+height:32px;
+border:0;
+float:left;
+background-image:url(../images/le_page_options.png);
+background-color:transparent;
+}
+
 #LeSubmit {
 width:90px;
 height:32px;
@@ -45,6 +63,42 @@ padding:10px;
 }
 
 .le_meta_tags_close {
+text-decoration:underline;
+cursor:pointer;
+}
+
+.le_title_tag_container {
+display:none;
+width:215px;
+text-align:left;
+height:auto;
+position:absolute;
+bottom:32px;
+left:94px;
+background-color:#FFF;
+border:1px solid gray;
+padding:10px;
+}
+
+.le_title_tag_close {
+text-decoration:underline;
+cursor:pointer;
+}
+
+.le_page_options_container {
+display:none;
+width:215px;
+text-align:left;
+height:auto;
+position:absolute;
+bottom:32px;
+left:188px;
+background-color:#FFF;
+border:1px solid gray;
+padding:10px;
+}
+
+.le_page_options_close {
 text-decoration:underline;
 cursor:pointer;
 }

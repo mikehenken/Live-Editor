@@ -34,6 +34,9 @@ add_action('content-bottom','le_after_content');
 //Display admin bar
 add_action('theme-footer','le_admin_bar');
 
+//Change content if user is logged in
+add_filter('content','le_change_content');
+
 //Initialize Javascript & CSS
 add_action('theme-header','le_show_aloha');
 
@@ -138,6 +141,26 @@ function le_show_aloha()
 					jQuery(".le_meta_tags_close").click(function(){
 						jQuery(".le_meta_tags_container").fadeOut();
 					});
+					jQuery("#le_title_tag").click(function(){
+						jQuery(".le_title_tag_container").show();
+					});
+					jQuery(".le_title_tag_close").click(function(){
+						jQuery(".le_title_tag_container").fadeOut();
+					});
+					jQuery("#le_page_options").click(function(){
+						jQuery(".le_page_options_container").show();
+					});
+					jQuery(".le_page_options_close").click(function(){
+						jQuery(".le_page_options_container").fadeOut();
+					});
+
+					jQuery(".le_page_options").live("click", function() {
+					      jQuery(".le_menu_order_wrapper").slideToggle("fast");
+						});
+					  if (jQuery(".le_page_options").is(":checked")) { 
+					  } else {
+					     jQuery(".le_menu_order_wrapper").css("display","none");
+					  }
 
 
 					jQuery("#LeSubmit").click(function(){
@@ -152,13 +175,28 @@ function le_show_aloha()
 
 						var metaDescription = jQuery(".le_meta_description").val(); 
 
+						var pageTitle = jQuery(".le_title_tag").val(); 
+
+						var menuStatus = ""; 
+						if (jQuery('.le_page_options').is(':checked')) {
+							menuStatus = "Y";
+						}
+
+						var menuOrder = jQuery(".le_menu_order").val(); 
+
+						var pageParent = jQuery(".le_page_parent").val(); 
+
 						var request = jQuery.ajax({
 							url: "<?php get_site_url(); ?><?php get_page_slug(); ?>",
 							type: "POST",
 							data: {
 								content : content,
 								metaKeywords : metaKeywords,
-								metaDescription : metaDescription
+								metaDescription : metaDescription,
+								pageTitle : pageTitle,
+								menuStatus : menuStatus,
+								menuOrder : menuOrder,
+								pageParent : pageParent
 							},
 							dataType: "html"
 						});
@@ -176,6 +214,17 @@ function le_show_aloha()
 	}
 }
 
+function le_change_content($content)
+{
+	if(get_cookie('GS_ADMIN_USERNAME') != "")
+	{
+		return '';
+	}
+	else
+	{
+		return $content;
+	}
+}
 
 /** 
 * Admin Display aloha wrapper and check for submitted changes
@@ -195,20 +244,42 @@ function le_before_content()
 			$request = $_REQUEST['content'];
 			$metaKeywords = $_REQUEST['metaKeywords'];
 			$metaDescription = $_REQUEST['metaDescription'];
+			$pageTitle = $_REQUEST['pageTitle'];
+			$menuStatus = $_REQUEST['menuStatus'];
+			$pageParent = $_REQUEST['pageParent'];
+			if($menuStatus != 'Y')
+			{
+				$menuStatus = '';
+			}
+			$menuOrder = $_REQUEST['menuOrder'];
 
 			$xml = new SimpleXMLExtended($pageData);
 			$xml->content = '';
 			$xml->meta = '';
 			$xml->metad = '';
+			$xml->title = '';
+			$xml->menuStatus = '';
+			$xml->menuOrder = '';
+			$xml->parent = '';
 			$content = $xml->content;
 			$content->addCData($request);
 			$meta = $xml->meta;
 			$meta->addCData($metaKeywords);
 			$metad = $xml->metad;
 			$metad->addCData($metaDescription);
+			$title = $xml->title;
+			$title->addCData($pageTitle);
+			$menu = $xml->menuStatus;
+			$menu->addCData($menuStatus);
+			$menu_order = $xml->menuOrder;
+			$menu_order->addCData($menuOrder);
+			$page_parent = $xml->parent;
+			$page_parent->addCData($pageParent);
 			XMLsave($xml, $file);
+			create_pagesxml('true');
 		}
-		echo '<div class="le_success" style="">The Page Has Been Succesfully Saved</div><div id="live_editor_content">';
+		$content_data = getXML($file);
+		echo '<div class="le_success" style="">The Page Has Been Succesfully Saved</div><div id="live_editor_content">'.strip_decode($content_data->content);
 	}
 }
 
@@ -260,9 +331,78 @@ function le_admin_bar()
 		<br/><a class="le_meta_tags_close" style="">Close</a>
 		<div style="clear:both;"></div>
 	</div>
+	<div class="le_title_tag_container" style="">
+		<h2>Change Page Title</h2><br/>
+		<p>
+			<label>Page Title: </label>
+			<input type="text" value="<?php echo $xml->title; ?>" class="le_title_tag" name="le_title_tag" />
+		</p><br/>
+		<br/><a class="le_title_tag_close" style="">Close</a>
+		<div style="clear:both;"></div>
+	</div>
+	<div class="le_page_options_container" style="">
+		<h2>Page Options</h2><br/>
+		<p>
+			<label>Menu Status: </label>
+			<input type="checkbox" class="le_page_options" name="le_page_options" value="Y" <?php if($xml->menuStatus == 'Y') { echo 'checked'; } ?> />
+		</p><br/>
+		<p class="le_menu_order_wrapper">
+			<label>Menu Order: </label>
+			<select name="le_menu_order" class="le_menu_order">
+				<?php 
+					$count_menu = 0;
+					while($count_menu < 30)
+					{
+						$count_menu++;
+						if($count_menu == $xml->menuOrder)
+						{
+							echo '<option value="'.$count_menu.'" selected>'.$count_menu.'</option>';
+						}
+						else
+						{
+							echo '<option value="'.$count_menu.'">'.$count_menu.'</option>';
+						}
+					}
+				?>
+			</select>
+		</p><br/>
+		<p>
+			<label>Parent: </label>
+			<select class="le_page_parent" id="le_page_parent" name="le_page_parent" <?php if($xml->url == 'index') { echo 'disabled'; } ?>> 
+				<?php 
+				$parent = $xml->parent;
+				if($parent == '')
+				{
+					echo '<option value="" selected></option>';
+				}
+				else
+				{
+					echo '<option value=""></option>';
+				}
+
+				$pages_xml = getXML(GSDATAOTHERPATH.'pages.xml');
+				foreach($pages_xml->item as $page)
+				{
+					if($parent != $page->url)
+					{
+						echo '<option value="'.$page->url.'">'.$page->title.'</option>';
+					}
+					elseif($parent == $page->url)
+					{
+						echo '<option value="'.$page->url.'" selected>'.$page->title.'</option>';
+					}
+				}
+				?>
+			</select>
+		</p>
+		<br/><a class="le_page_options_close" style="">Close</a>
+		<div style="clear:both;"></div>
+	</div>
 	<div id="le_admin_bar" style="">
 		<div id="le_admin_bar_wrapper" style="">
 			<button id="le_meta_tags" style=""></button>
+			<button id="le_title_tag" style=""></button>
+			<button id="le_page_options" style=""></button>
 			<button id="LeSubmit" style=""></button>
 		</div>
 	</div>
