@@ -14,7 +14,7 @@ $thisfile=basename(__FILE__, ".php");
 register_plugin(
 	$thisfile, 
 	'Live Editor', 
-	'1.0', 			
+	'1.1', 			
 	'Mike Henken',	
 	'http://michaelhenken.com/', 
 	'Allow logged in site admins to edit website from the front end', 
